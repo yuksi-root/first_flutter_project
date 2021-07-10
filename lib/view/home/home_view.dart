@@ -1,6 +1,9 @@
 import 'package:first_flutter_project/components/card/categories_card.dart';
 import 'package:first_flutter_project/constant/color_constant.dart';
+import 'package:first_flutter_project/view/categories/categories_model.dart';
+import 'package:first_flutter_project/view/categories/categories_values.dart';
 import 'package:first_flutter_project/view/home/home_model.dart';
+
 import 'home_view_model.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +20,8 @@ class _HomeViewState extends State<HomeView> {
 
   final HomeViewModel viewModel = HomeViewModel();
 
-  int value = 0;
+  List<Category> categories = CategoriesValues.getAllCategories();
+
   @override
   void initState() {
     super.initState();
@@ -25,14 +29,23 @@ class _HomeViewState extends State<HomeView> {
   }
 
   void _changeValue() {
-    value = viewModel.randomValue(value: 50);
+    categories.forEach((element) {
+      element.value = viewModel.randomValue(value: 30);
+    });
     setState(() {}); //update screen
   }
 
-  bool get isPrime => viewModel.isPrime(value);
-  bool get isEven => value.isEven;
-  Color get _primary => isPrime ? Colors.indigo : Colors.purple;
-  Color get _secondary => isEven ? Colors.green : Colors.teal;
+  Color _primarySetColor(int value) {
+    bool isPrime = viewModel.isPrime(value);
+    Color _primary = isPrime ? Colors.orange : Colors.teal;
+    return _primary;
+  }
+
+  Color _secondarySetColor(int value) {
+    bool isEven = value.isEven;
+    Color _secondary = isEven ? Colors.indigo : Colors.purple;
+    return _secondary;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,48 +67,27 @@ class _HomeViewState extends State<HomeView> {
           Expanded(
               flex: 1,
               child: CategoriesCard(
-                name: model.title,
-                body: model.description,
-                cardColor: Colors.blue,
-                textTitle: Colors.white,
-                textTask: ColorConstants.instance.white,
-              )),
+                  name: model.title,
+                  body: model.description,
+                  cardColor: Colors.blue,
+                  textTitleColor: Colors.white,
+                  textTaskColor: ColorConstants.instance.white,
+                  value: 0)),
           Expanded(
               flex: 4,
-              child: ListView(
-                children: [
-                  CategoriesCard(
-                      name: "Personal",
-                      body: "$value Tasks",
-                      cardColor: _primary,
-                      textTitle: ColorConstants.instance.white,
-                      textTask: _secondary),
-                  CategoriesCard(
-                      name: "Shopping",
-                      body: "$value Tasks",
-                      cardColor: _secondary,
-                      textTitle: ColorConstants.instance.white,
-                      textTask: _primary),
-                  CategoriesCard(
-                      name: "Sport",
-                      body: "$value Tasks",
-                      cardColor: _primary,
-                      textTitle: ColorConstants.instance.white,
-                      textTask: _secondary),
-                  CategoriesCard(
-                      name: "Event",
-                      body: "$value Tasks",
-                      cardColor: _secondary,
-                      textTitle: ColorConstants.instance.white,
-                      textTask: _primary),
-                  CategoriesCard(
-                      name: "Work",
-                      body: "$value Tasks",
-                      cardColor: _primary,
-                      textTitle: ColorConstants.instance.white,
-                      textTask: _secondary),
-                ],
-              ))
+              child: ListView.builder(
+                  itemCount: categories.length,
+                  itemBuilder: (BuildContext ctx, int i) {
+                    return Expanded(
+                        child: CategoriesCard(
+                      name: categories[i].name,
+                      body: categories[i].body,
+                      value: categories[i].value,
+                      cardColor: _secondarySetColor(categories[i].value),
+                      textTitleColor: categories[i].textTitleColor,
+                      textTaskColor: _primarySetColor(categories[i].value),
+                    ));
+                  }))
         ],
       ),
     );
